@@ -6,6 +6,7 @@ from tkinter import ttk
 from tkinter import PhotoImage
 from tkinter import filedialog
 
+# Class Audiocenter
 class audiocenter(tk.Tk):
 
     def __init__(self, root):
