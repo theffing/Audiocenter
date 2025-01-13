@@ -60,9 +60,9 @@ class audiocenter(tk.Tk):
             # Grab Length of song
             self.player.play(); self.player.audio_toggle_mute()
             time.sleep(.1)
-            length = self.player.get_length() / 1000
-            self.min = length // 60
-            self.sec = length % 60
+            self.length = self.player.get_length() / 1000
+            self.min = self.length // 60
+            self.sec = self.length % 60
             self.track_time.config(text=f"0:00/{int(self.min)}:{int(self.sec)}")
             self.player.pause(); self.player.audio_toggle_mute()
             # Set player icon for first time
