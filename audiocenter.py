@@ -1,7 +1,7 @@
 import re
 import vlc
-import tkinter as tk
 import time
+import tkinter as tk
 from tkinter import ttk
 from tkinter import PhotoImage
 from tkinter import filedialog
@@ -12,10 +12,6 @@ class audiocenter(tk.Tk):
     def __init__(self, root):
         self.player = vlc.MediaPlayer()
         self.root = root
-        # Brain Picture
-        #image_label = tk.Label(root, image=image)
-        #image_label.grid(row=0,column=0,pady=2)
-
         # Just a label above the file path entry
         self.label = tk.Label(text="",bg="#272727",fg="white")
         self.label.grid(row=0,column=0,pady=2)
@@ -28,12 +24,22 @@ class audiocenter(tk.Tk):
         # Pause Button
         pause_button = tk.Button(root, text="Pause", command=self.pause_song)
         pause_button.grid(row=0,column=3,pady=2)
+        # Fast-Forward 10secs
+        forward_button = tk.Button(root, text="+10s", command=self.forward)
+        forward_button.grid(row=0,column=4,pady=2)
+        # Rewind 10secs
+        rewind_button = tk.Button(root, text="-10s", command=self.rewind)
+        rewind_button.grid(row=0,column=5,pady=2)
         # Mute Button
         mute_button = tk.Button(root, text="Mute",command=self.mute_song)
-        mute_button.grid(row=0,column=4,pady=2)
+        mute_button.grid(row=0,column=6,pady=2)
+        # Pause/Play Icon
+        self.image = PhotoImage(file='pause.png')
+        self.image_label = tk.Label(root,bg="#272727",image=self.image)
+        self.image_label.grid(row=1,column=0,pady=2)
         # Track time playing and total duration
         self.track_time = tk.Label(text="",bg="#272727",fg="white")
-        self.track_time.grid(row=1,column=0,pady=2)
+        self.track_time.grid(row=1,column=1,pady=2)
 
     # ------------------------------------------------------------------
 
@@ -57,20 +63,30 @@ class audiocenter(tk.Tk):
             length = self.player.get_length() / 1000
             self.min = length // 60
             self.sec = length % 60
-            self.track_time.config(text=f"0:0/{int(self.min)}:{int(self.sec)}")
+            self.track_time.config(text=f"0:00/{int(self.min)}:{int(self.sec)}")
             self.player.pause(); self.player.audio_toggle_mute()
+            # Set player icon for first time
 
     def pause_song(self):
         global is_playing
         self.player.pause()
+        self.image = tk.PhotoImage(file='pause.png')
+        self.image_label.config(image=self.image)
         is_playing = False
 
     def play_song(self):
         global start_time, is_playing
-        start_time = time.time()
         is_playing = True
         self.player.play()
+        self.image = tk.PhotoImage(file='play.png')
+        self.image_label.config(image=self.image)
         self.track_media_time()
+
+    def forward(self):
+        self.player.set_time(self.player.get_time() + 10000)
+
+    def rewind(self):
+        self.player.set_time(self.player.get_time() - 10000)
 
     def mute_song(self):
         self.player.audio_toggle_mute()
@@ -78,10 +94,14 @@ class audiocenter(tk.Tk):
     def track_media_time(self):
         global start_time, is_playing
         if is_playing:
-            self.length = time.time() - start_time
+            self.length = self.player.get_time() / 1000
             self.el_min = self.length // 60
             self.el_sec = self.length % 60
-            self.track_time.config(text=f"{int(self.el_min)}:{int(self.el_sec)}/{int(self.min)}:{int(self.sec)}")
+            if int(self.el_sec) < 10:
+                time = (f"{int(self.el_min)}:0{int(self.el_sec)}")
+            else:
+                time = (f"{int(self.el_min)}:{int(self.el_sec)}")
+            self.track_time.config(text=f"{time}/{int(self.min)}:{int(self.sec)}")
             self.root.after(1000, self.track_media_time)  # Update every second
 
 # ------------------------------------------------------------------
