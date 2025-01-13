@@ -69,7 +69,9 @@ class audiocenter(tk.Tk):
 
     def pause_song(self):
         global is_playing
+        # Pause mp3 file
         self.player.pause()
+        # Set pause image icon
         self.image = tk.PhotoImage(file='pause.png')
         self.image_label.config(image=self.image)
         is_playing = False
@@ -77,15 +79,20 @@ class audiocenter(tk.Tk):
     def play_song(self):
         global start_time, is_playing
         is_playing = True
+        # Play mp3 file
         self.player.play()
+        # Set play image icon
         self.image = tk.PhotoImage(file='play.png')
         self.image_label.config(image=self.image)
+        # Start track time updater function
         self.track_media_time()
 
     def forward(self):
+        # Adjust time 10secs ahead
         self.player.set_time(self.player.get_time() + 10000)
 
     def rewind(self):
+        # Adjust time 10secs behind
         self.player.set_time(self.player.get_time() - 10000)
 
     def mute_song(self):
@@ -93,15 +100,20 @@ class audiocenter(tk.Tk):
 
     def track_media_time(self):
         global start_time, is_playing
+        # if song is playing; we can update the time
         if is_playing:
+            # Get current time spent playing the mp3 in ms / 1000 = sec
             self.length = self.player.get_time() / 1000
             self.el_min = self.length // 60
             self.el_sec = self.length % 60
+            # Adjust text for clarity
             if int(self.el_sec) < 10:
                 time = (f"{int(self.el_min)}:0{int(self.el_sec)}")
             else:
                 time = (f"{int(self.el_min)}:{int(self.el_sec)}")
+            # Configure track_time label to include updated time
             self.track_time.config(text=f"{time}/{int(self.min)}:{int(self.sec)}")
+            # Do this all again in one second
             self.root.after(1000, self.track_media_time)  # Update every second
 
 # ------------------------------------------------------------------
