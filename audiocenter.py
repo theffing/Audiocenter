@@ -16,14 +16,14 @@ class audiocenter(tk.Tk):
         self.label = tk.Label(text="",bg="#272727",fg="white")
         self.label.grid(row=0,column=0,pady=2)
         # File Explorer Button
-        browse_button = tk.Button(root, text="MP3", command=self.browse_file)
+        browse_button = tk.Button(root, text="Mp3", command=self.browse_file)
         browse_button.grid(row=0,column=1,padx=1,pady=2)
         # Play Button
         play_button = tk.Button(root, text="Play", command=self.play_song)
         play_button.grid(row=0,column=2,pady=2)
         # Pause Button
-        pause_button = tk.Button(root, text="Pause", command=self.pause_song)
-        pause_button.grid(row=0,column=3,pady=2)
+        #pause_button = tk.Button(root, text="Pause", command=self.pause_song)
+        #pause_button.grid(row=0,column=3,pady=2)
         # Fast-Forward 10secs
         forward_button = tk.Button(root, text="+10s", command=self.forward)
         forward_button.grid(row=0,column=4,pady=2)
@@ -34,9 +34,9 @@ class audiocenter(tk.Tk):
         mute_button = tk.Button(root, text="Mute",command=self.mute_song)
         mute_button.grid(row=0,column=6,pady=2)
         # Pause/Play Icon
-        self.image = PhotoImage(file='pause.png')
+        self.image = PhotoImage(file='play.png')
         self.image_label = tk.Label(root,bg="#272727",image=self.image)
-        self.image_label.grid(row=1,column=0,pady=2)
+        self.image_label.grid(row=2,column=2,pady=2)
         # Track time playing and total duration
         self.track_time = tk.Label(text="",bg="#272727",fg="white")
         self.track_time.grid(row=1,column=1,pady=2)
@@ -52,7 +52,7 @@ class audiocenter(tk.Tk):
             is_playing = False
             self.player.stop()
             filename = re.sub(r"file:///", "", filename)
-            print(filename)
+            #print(filename)
             self.player = vlc.MediaPlayer(filename)
             # Get Title of Song
             title = filename.rsplit('/', 1)[1]
@@ -71,29 +71,36 @@ class audiocenter(tk.Tk):
         global is_playing
         # Pause mp3 file
         self.player.pause()
-        # Set pause image icon
-        self.image = tk.PhotoImage(file='pause.png')
-        self.image_label.config(image=self.image)
         is_playing = False
+        # Set pause image icon
+        self.image = tk.PhotoImage(file='play.png')
+        self.image_label.config(image=self.image)
 
     def play_song(self):
         global start_time, is_playing
-        is_playing = True
+        if (is_playing) :
+            self.pause_song()
+            return
         # Play mp3 file
         self.player.play()
+        is_playing = True
         # Set play image icon
-        self.image = tk.PhotoImage(file='play.png')
+        self.image = tk.PhotoImage(file='pause.png')
         self.image_label.config(image=self.image)
         # Start track time updater function
         self.track_media_time()
 
     def forward(self):
         # Adjust time 10secs ahead
+        self.player.pause()
         self.player.set_time(self.player.get_time() + 10000)
+        self.player.play()
 
     def rewind(self):
         # Adjust time 10secs behind
+        self.player.pause()
         self.player.set_time(self.player.get_time() - 10000)
+        self.player.play()
 
     def mute_song(self):
         self.player.audio_toggle_mute()
@@ -114,7 +121,7 @@ class audiocenter(tk.Tk):
             # Configure track_time label to include updated time
             self.track_time.config(text=f"{time}/{int(self.min)}:{int(self.sec)}")
             # Do this all again in one second
-            self.root.after(1000, self.track_media_time)  # Update every second
+            self.root.after(900, self.track_media_time)  # Update every second
 
 # ------------------------------------------------------------------
 
